@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer, ParamListBase, useNavigation } from '@react-navigation/native';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   Button,
   Text,
@@ -18,6 +18,7 @@ import Button1 from '../../components/Buttons/Button1';
 const SignInScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setLoading] = useState(false);
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -77,12 +78,13 @@ const SignInScreen = () => {
             onPress={
               phoneNumber.trim().length > 9
                 ? () => {
+                  Keyboard.dismiss();
                   setLoading(true);
 
                   setTimeout(function () {
-                    setLoading(false);
-                    // router.navigate('VerifyOTP');
-                  }, 1000);
+                    setLoading(false); 
+                    navigation.navigate('VerifyOTPScreen');
+                  }, 1000); 
                   
                 }
                 : null
