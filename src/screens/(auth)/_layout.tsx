@@ -8,7 +8,13 @@ const Stack = createNativeStackNavigator();
 const AuthLayout = () => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Login" component={AuthScreen} />
+            <Stack.Screen 
+                name="AuthScreen" 
+                component={AuthScreen}
+                options={{
+                    headerShown: false
+                }}
+            />
         </Stack.Navigator>
     )
 }
