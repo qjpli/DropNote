@@ -32,7 +32,7 @@ const SignInScreen = () => {
   const colors = getThemeStyles(isDark);
 
   useEffect(() => {
-    dispatch(loadTheme()); // Load the theme from AsyncStorage on app startup
+    dispatch(loadTheme());
   }, [dispatch]);
 
   const handleToggleTheme = () => {
@@ -51,7 +51,7 @@ const SignInScreen = () => {
       <KeyboardAvoidingView behavior="padding" style={[styles.mainCont, { backgroundColor: colors.background }]}>
         <View>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
               {"What's your\nUsername?"}
             </Text>
             <Text style={styles.headerSubtitle}>
@@ -65,6 +65,7 @@ const SignInScreen = () => {
               onChangeText={handleUsernameChange}
               height={dimensions.screenHeight * 0.07}
               keyboardType="default"
+              backgroundColor={colors.cardBackground}
               maxLength={50}
               prefix={
                 <View
@@ -74,7 +75,7 @@ const SignInScreen = () => {
                     justifyContent: 'flex-start',
                     alignItems: 'center',
                   }}>
-                  <Text style={{ fontFamily: 'Montserrat' }}>@</Text>
+                  <Text style={{ fontFamily: 'Montserrat', color: colors.text }}>@</Text>
                 </View>
               }
             />
@@ -83,7 +84,7 @@ const SignInScreen = () => {
         <View style={styles.floatingBottom}>
           <Button1
             title="Continue"
-            backgroundColor="#ef3a5d"
+            backgroundColor={colors.primary}
             textColor="white"
             isLoading={isLoading}
             onPress={
@@ -98,7 +99,7 @@ const SignInScreen = () => {
                       setLoading(false); 
                       // navigation.navigate('VerifyOTPScreen');
                       handleToggleTheme()
-                    }, 1000); 
+                    }, 0); 
                   }
                 : null
             }

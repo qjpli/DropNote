@@ -1,6 +1,20 @@
 export const lightColors = {
-    primary: '#1E88E5',
-    background: '#FFFFFF',
+    primary: '#ef3a5d',
+    background: '#F8F8FF',
+    trueColor: '#fff',
     text: '#000000',
+    textLight: '#808080',
     input: '#F2F2F2',
-};
+    border: '#DDDDDD',
+    buttonBackground: '#DDDDDD',
+    buttonText: '#000000',
+    cardBackground: '#FFFFFF',
+    shadow: 'rgba(0, 0, 0, 0.1)',
+    link: '#007bff',
+    error: '#FF0000',
+    success: '#28a745',
+    warning: '#ffc107',
+    placeholder: '#888888',
+    disabled: '#D3D3D3',
+    accent: '#FF69B4',
+  };

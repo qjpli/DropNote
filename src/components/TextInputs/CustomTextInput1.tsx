@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { X } from 'lucide-react-native';
 import dimensions from '../../hooks/useSizing';
+import { useSelector } from 'react-redux';
+import { getThemeStyles } from '../../hooks/useThemes';
 
 interface CustomTextInputProps {
   placeholder?: string;
@@ -40,12 +42,15 @@ const CustomTextInput1: React.FC<CustomTextInputProps> = ({
   showClearButton = false,
   maxLength,
 }) => {
+  const isDark = useSelector((state: any) => state.theme.isDark);
+  const colors = getThemeStyles(isDark);
+
   return (
     <View
       style={[
         styles.mainCont,
         {
-          backgroundColor,
+          backgroundColor: backgroundColor || colors.cardBackground,
           paddingVertical,
           paddingHorizontal,
           height,
@@ -54,9 +59,9 @@ const CustomTextInput1: React.FC<CustomTextInputProps> = ({
     >
       {prefix && <View style={styles.prefixContainer}>{prefix}</View>}
       <TextInput
-        style={[styles.input, { height }]}
+        style={[styles.input, { height, color: colors.text }]}
         placeholder={placeholder}
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.textLight}
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
@@ -87,7 +92,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontFamily: 'Montserrat',
-    fontWeight: 400
+    fontWeight: '400',
   },
   prefixContainer: {
     marginRight: 8,
