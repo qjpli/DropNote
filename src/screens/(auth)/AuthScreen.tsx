@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer, ParamListBase, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
@@ -16,8 +16,10 @@ import Button1 from '../../components/Buttons/Button1';
 import PhilippineFlagIcon from '../../assets/svgs/PhilippineFlagIcon';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../../redux/slices/themeSlice';
-import { persistTheme, toggleAndPersistTheme } from '../../redux/actions/themeActions';
+import { loadTheme, persistTheme, toggleAndPersistTheme } from '../../redux/actions/themeActions';
 import { useAppDispatch } from '../../redux/store';
+import { getThemeStyles } from '../../hooks/useThemes';
+
 
 const SignInScreen = () => {
   const [username, setUsername] = useState('');
@@ -27,11 +29,11 @@ const SignInScreen = () => {
   const dispatch = useAppDispatch();
 
   const isDark = useSelector((state: any) => state.theme.isDark);
+  const colors = getThemeStyles(isDark);
 
-  // useEffect(() => {
-  //   // Load the theme from AsyncStorage when the component mounts
-  //   dispatch(loadTheme());
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(loadTheme()); // Load the theme from AsyncStorage on app startup
+  }, [dispatch]);
 
   const handleToggleTheme = () => {
     dispatch(toggleAndPersistTheme());
@@ -43,9 +45,10 @@ const SignInScreen = () => {
       setUsername(text);
     }
   };
+   
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView behavior="padding" style={styles.mainCont}>
+      <KeyboardAvoidingView behavior="padding" style={[styles.mainCont, { backgroundColor: colors.background }]}>
         <View>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>

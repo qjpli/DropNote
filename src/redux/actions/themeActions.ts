@@ -25,7 +25,6 @@ export const persistTheme = (isDark: boolean) => async () => {
   }
 };
 
-// Combine actions in a single thunk
 export const toggleAndPersistTheme = () => async (dispatch: AppDispatch, getState: () => RootState) => {
   const isDark = getState().theme.isDark;
 
