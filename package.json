@@ -14,6 +14,8 @@
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-navigation/native": "^7.1.7",
     "@react-navigation/native-stack": "^7.3.11",
+    "@reduxjs/toolkit": "^2.7.0",
+    "@supabase/supabase-js": "^2.49.4",
     "expo": "~53.0.7",
     "expo-font": "~13.3.1",
     "expo-splash-screen": "~0.30.8",
@@ -21,16 +23,19 @@
     "lucide-react-native": "^0.507.0",
     "react": "19.0.0",
     "react-native": "0.79.2",
+    "react-native-dotenv": "^3.4.11",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
     "react-native-svg": "^15.11.2",
-    "react-native-vector-icons": "^10.2.0"
+    "react-native-vector-icons": "^10.2.0",
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "@types/react-native-dotenv": "^0.2.2",
     "typescript": "~5.8.3"
   },
   "private": true

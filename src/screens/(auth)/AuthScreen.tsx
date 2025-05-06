@@ -12,58 +12,66 @@ import {
 } from 'react-native';
 import dimensions from '../../hooks/useSizing';
 import CustomTextInput1 from '../../components/TextInputs/CustomTextInput1';
-import PhilippineFlagIcon from '../../assets/svgs/PhilippineFlagIcon';
 import Button1 from '../../components/Buttons/Button1';
+import PhilippineFlagIcon from '../../assets/svgs/PhilippineFlagIcon';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleTheme } from '../../redux/slices/themeSlice';
+import { persistTheme, toggleAndPersistTheme } from '../../redux/actions/themeActions';
+import { useAppDispatch } from '../../redux/store';
 
 const SignInScreen = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [username, setUsername] = useState('');
   const [isLoading, setLoading] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
+  const dispatch = useAppDispatch();
+
+  const isDark = useSelector((state: any) => state.theme.isDark);
+
+  // useEffect(() => {
+  //   // Load the theme from AsyncStorage when the component mounts
+  //   dispatch(loadTheme());
+  // }, [dispatch]);
+
+  const handleToggleTheme = () => {
+    dispatch(toggleAndPersistTheme());
+  };
+
+  const handleUsernameChange = (text: string) => {
+    const regex = /^[a-zA-Z0-9.]*$/;
+    if (regex.test(text) && text.length <= 16) {
+      setUsername(text);
+    }
+  };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView behavior="padding" style={styles.mainCont}>
         <View>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>
-              {"What's your\nMobile Number?"}
+              {"What's your\nUsername?"}
             </Text>
             <Text style={styles.headerSubtitle}>
-              Your mobile number will be used to access your account, receive
-              important updates, and help keep your profile secure.
+              Your username will be used to access your account securely.
             </Text>
           </View>
           <View style={styles.body}>
             <CustomTextInput1
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
+              placeholder="Username"
+              value={username}
+              onChangeText={handleUsernameChange}
               height={dimensions.screenHeight * 0.07}
-              keyboardType="numeric"
-              maxLength={11}
+              keyboardType="default"
+              maxLength={50}
               prefix={
                 <View
                   style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    // backgroundColor: 'green',
                     justifyContent: 'flex-start',
                     alignItems: 'center',
                   }}>
-                  <View
-                    style={{
-                      width: dimensions.screenWidth * 0.05,
-                      height: dimensions.screenHeight * 0.07,
-                      marginRight: dimensions.screenWidth * 0.02,
-                    }}>
-                    <PhilippineFlagIcon
-                      props={{
-                        width: dimensions.screenWidth * 0.05,
-                        height: dimensions.screenHeight * 0.05,
-                      }}
-                    />
-                  </View>
-                  <Text style={{ fontFamily: 'Montserrat' }}>+63</Text>
+                  <Text style={{ fontFamily: 'Montserrat' }}>@</Text>
                 </View>
               }
             />
@@ -76,17 +84,19 @@ const SignInScreen = () => {
             textColor="white"
             isLoading={isLoading}
             onPress={
-              phoneNumber.trim().length > 9
+              username.trim().length > 2
                 ? () => {
-                  Keyboard.dismiss();
-                  setLoading(true);
 
-                  setTimeout(function () {
-                    setLoading(false); 
-                    navigation.navigate('VerifyOTPScreen');
-                  }, 1000); 
-                  
-                }
+
+                    Keyboard.dismiss();
+                    setLoading(true);
+
+                    setTimeout(function () {
+                      setLoading(false); 
+                      // navigation.navigate('VerifyOTPScreen');
+                      handleToggleTheme()
+                    }, 1000); 
+                  }
                 : null
             }
           />
@@ -109,17 +119,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: dimensions.screenWidth * 0.06,
   },
   headerTitle: {
-    fontSize: dimensions.screenWidth * 0.1,
-    marginBottom: 20,
+    fontSize: dimensions.screenSize * 0.0316,
+    marginBottom: dimensions.screenHeight * 0.025,
     textAlign: 'left',
     fontFamily: 'Montserrat',
-    fontWeight: 700,
+    fontWeight: '700',
     color: 'black',
   },
   headerSubtitle: {
     fontFamily: 'Montserrat',
     color: '#808080',
-    lineHeight: dimensions.screenHeight * 0.026
+    lineHeight: dimensions.screenHeight * 0.026,
+    fontSize: dimensions.screenSize * 0.0115,
   },
   body: {
     margin: dimensions.screenWidth * 0.06,
@@ -132,3 +143,4 @@ const styles = StyleSheet.create({
 });
 
 export default SignInScreen;
+
