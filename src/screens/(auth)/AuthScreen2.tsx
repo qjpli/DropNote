@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer, ParamListBase, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, ParamListBase, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   Button,
@@ -20,8 +20,15 @@ import { toggleTheme } from '../../redux/slices/themeSlice';
 import { loadTheme, persistTheme, toggleAndPersistTheme } from '../../redux/actions/themeActions';
 import { useAppDispatch } from '../../redux/store';
 import { getThemeStyles } from '../../hooks/useThemes';
+import { AuthStackParamList } from './_layout';
 
 const AuthScreen2 = () => {
+  type AuthScreen2RouteProp = RouteProp<AuthStackParamList, 'AuthScreen2'>;
+  const route = useRoute<AuthScreen2RouteProp>();
+  const { username, process } = route.params;
+
+  const [hasAccount, setHasAccount] = useState<boolean>(process == 'sign-in' ? true : false);
+
   const [password, setPassword] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -102,10 +109,13 @@ const AuthScreen2 = () => {
         <View>
           <View style={styles.header}>
             <Text style={[styles.headerTitle, { color: colors.text }]}>
-              {"Enter your\nPassword"}
+              {hasAccount ? "Enter your\nPassword" : "Create your\nPassword"}
             </Text>
             <Text style={styles.headerSubtitle}>
-              Verify your identity with your password to keep your account secure and protected.
+              {hasAccount
+                ? "Enter your password to access your account securely."
+                : "Create a secure password to protect your new account."
+              }
             </Text>
           </View>
           <View style={styles.body}>
@@ -131,42 +141,45 @@ const AuthScreen2 = () => {
               }
             />
           </View>
-          <Animated.View
-            style={{
-              overflow: 'hidden',
-              height: containerAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, dimensions.screenHeight * 0.02],
-              }),
-              opacity: containerAnimation,
-              paddingHorizontal: dimensions.screenWidth * 0.06,
-            }}
-          >
-            <View style={styles.progressBarContainer}>
+          {
+            !hasAccount && <>
               <Animated.View
-                style={[
-                  styles.progressBar,
-                  {
-                    width: animationValue.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['0%', '100%'],
-                    }),
-                    backgroundColor: passwordStrength < 3 ? 'red' : 'green',
-                  },
-                ]}
-              />
-            </View>
-          </Animated.View>
-
-          <View style={styles.bottom}>
-            <Text style={[styles.headerSubtitle, { fontSize: dimensions.screenSize * 0.01 }]}>
-              Password must be at least 8 characters, including uppercase and lowercase letters, numbers, and symbols to create your account.
-            </Text>
-          </View>
+                style={{
+                  overflow: 'hidden',
+                  height: containerAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, dimensions.screenHeight * 0.02],
+                  }),
+                  opacity: containerAnimation,
+                  paddingHorizontal: dimensions.screenWidth * 0.06,
+                }}
+              >
+                <View style={styles.progressBarContainer}>
+                  <Animated.View
+                    style={[
+                      styles.progressBar,
+                      {
+                        width: animationValue.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', '100%'],
+                        }),
+                        backgroundColor: passwordStrength < 3 ? 'red' : 'green',
+                      },
+                    ]}
+                  />
+                </View>
+              </Animated.View>
+              <View style={styles.bottom}>
+                <Text style={[styles.headerSubtitle, { fontSize: dimensions.screenSize * 0.01 }]}>
+                  Password must be at least 8 characters, including uppercase and lowercase letters, numbers, and symbols to create your account.
+                </Text>
+              </View>
+            </>
+          }
         </View>
         <View style={styles.floatingBottom}>
           <Button1
-            title="Continue"
+            title={hasAccount ? 'Sign in' : 'Create Account'}
             backgroundColor={colors.primary}
             textColor="white"
             isLoading={isLoading}
@@ -178,7 +191,9 @@ const AuthScreen2 = () => {
 
                   setTimeout(function () {
                     setLoading(false);
-                    handleToggleTheme();
+                    // handleToggleTheme();
+
+                    console.log(username);
                   }, 0);
                 }
                 : null

@@ -97,7 +97,7 @@ const AuthScreen1 = () => {
 
                     setTimeout(function () {
                       setLoading(false); 
-                      navigation.navigate('AuthScreen2');
+                      navigation.navigate('AuthScreen2', { username, process: 'sign-in' });
                     }, 0); 
                   }
                 : null
