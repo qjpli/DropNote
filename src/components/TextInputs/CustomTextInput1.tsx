@@ -1,14 +1,13 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   TextInput,
   StyleSheet,
   View,
   TouchableOpacity,
-  TextInputProps,
   ViewStyle,
   KeyboardTypeOptions,
 } from 'react-native';
-import { X } from 'lucide-react-native';
+import { X, Eye, EyeOff } from 'lucide-react-native';
 import dimensions from '../../hooks/useSizing';
 import { useSelector } from 'react-redux';
 import { getThemeStyles } from '../../hooks/useThemes';
@@ -42,8 +41,17 @@ const CustomTextInput1: React.FC<CustomTextInputProps> = ({
   showClearButton = false,
   maxLength,
 }) => {
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
+  const textInputRef = useRef<TextInput | null>(null); // Create a ref for the TextInput
   const isDark = useSelector((state: any) => state.theme.isDark);
   const colors = getThemeStyles(isDark);
+
+  // Function to trigger blur
+  const handleBlur = () => {
+    if (textInputRef.current) {
+      textInputRef.current.blur();
+    }
+  };
 
   return (
     <View
@@ -59,18 +67,30 @@ const CustomTextInput1: React.FC<CustomTextInputProps> = ({
     >
       {prefix && <View style={styles.prefixContainer}>{prefix}</View>}
       <TextInput
+        ref={textInputRef} // Assign ref to TextInput
         style={[styles.input, { height, color: colors.text }]}
         placeholder={placeholder}
         placeholderTextColor={colors.textLight}
         value={value}
         onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
+        secureTextEntry={secureTextEntry && !isPasswordVisible}
         keyboardType={keyboardType}
+        clearTextOnFocus={false}
         maxLength={maxLength}
+        selectionColor={colors.primary}
       />
       {showClearButton && value?.length > 0 && (
         <TouchableOpacity onPress={() => onChangeText('')}>
           <X size={18} color="#666" />
+        </TouchableOpacity>
+      )}
+      {secureTextEntry && (
+        <TouchableOpacity onPress={() => setPasswordVisible(!isPasswordVisible)}>
+          {isPasswordVisible ? (
+            <EyeOff size={dimensions.screenSize * 0.016} color="#666" />
+          ) : (
+            <Eye size={dimensions.screenSize * 0.016} color="#666" />
+          )}
         </TouchableOpacity>
       )}
     </View>

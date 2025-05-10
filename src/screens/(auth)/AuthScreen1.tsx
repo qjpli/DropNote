@@ -8,7 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Keyboard,
-  TouchableWithoutFeedback,
+  TouchableWithoutFeedback, 
 } from 'react-native';
 import dimensions from '../../hooks/useSizing';
 import CustomTextInput1 from '../../components/TextInputs/CustomTextInput1';
@@ -21,7 +21,7 @@ import { useAppDispatch } from '../../redux/store';
 import { getThemeStyles } from '../../hooks/useThemes';
 
 
-const SignInScreen = () => {
+const AuthScreen1 = () => {
   const [username, setUsername] = useState('');
   const [isLoading, setLoading] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
@@ -32,7 +32,7 @@ const SignInScreen = () => {
   const colors = getThemeStyles(isDark);
 
   useEffect(() => {
-    dispatch(loadTheme());
+    // dispatch(loadTheme());
   }, [dispatch]);
 
   const handleToggleTheme = () => {
@@ -75,7 +75,7 @@ const SignInScreen = () => {
                     justifyContent: 'flex-start',
                     alignItems: 'center',
                   }}>
-                  <Text style={{ fontFamily: 'Montserrat', color: colors.text }}>@</Text>
+                  <Text style={{ fontFamily: 'Montserrat', color: "#808080" }}>@</Text>
                 </View>
               }
             />
@@ -97,8 +97,7 @@ const SignInScreen = () => {
 
                     setTimeout(function () {
                       setLoading(false); 
-                      // navigation.navigate('VerifyOTPScreen');
-                      handleToggleTheme()
+                      navigation.navigate('AuthScreen2');
                     }, 0); 
                   }
                 : null
@@ -146,5 +145,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignInScreen;
+export default AuthScreen1;
 
