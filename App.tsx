@@ -6,6 +6,8 @@ import useFonts from './src/hooks/useFonts';
 import { Provider } from 'react-redux';
 import store from './src/redux/store';
 import React from 'react';
+import ContextHandler from './src/contexts/handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // SplashScreen.preventAutoHideAsync(); 
 
@@ -17,8 +19,12 @@ export default function App() {
   }
 
   return (
-    <Provider store={store}>
-      <AppLayout />
-    </Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ContextHandler>
+        <Provider store={store}>
+          <AppLayout />
+        </Provider>
+      </ContextHandler>
+    </GestureHandlerRootView>
   );
-}
+} 

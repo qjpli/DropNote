@@ -10,7 +10,6 @@ const store = configureStore({
   },
 });
 
-// Inferred types
 export type RootState = ReturnType<typeof store.getState>; // Inferred from store
 export type AppDispatch = typeof store.dispatch; // Inferred from store
 
