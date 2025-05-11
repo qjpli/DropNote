@@ -7,11 +7,13 @@ import OnboardingLayout from './screens/(onboarding)/_layout';
 import { useSession } from './contexts/sessionContext';
 import ProfileAvatarModal from './components/UI/ProfileAvatarModal';
 import { Modalize } from 'react-native-modalize';
+import { loadTheme } from './redux/actions/themeActions';
+import { useAppDispatch } from './redux/store';
 
 const Stack = createNativeStackNavigator();
 
 const AppLayout = () => {
-  const { session } = useSession(); 
+  const { session } = useSession();
   const modalizeRef = useRef<Modalize>(null);
 
   useEffect(() => {
@@ -19,27 +21,26 @@ const AppLayout = () => {
       const avatarUrl = session.user.user_metadata?.avatar_url;
       if (!avatarUrl) {
         modalizeRef.current?.open();
-      } 
+      }
     }
   }, [session]);
 
-  return (
+  return ( 
     <> 
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {session?.user ? ( 
             <Stack.Screen name="Main" component={MainLayout} />
-          ) : (
+          ) : ( 
             <>
               <Stack.Screen name="Auth" component={AuthLayout} />
               <Stack.Screen name="Onboarding" component={OnboardingLayout} />
             </>
           )}
         </Stack.Navigator>
+        <ProfileAvatarModal modalizeRef={modalizeRef} />
       </NavigationContainer>
-
-      <ProfileAvatarModal modalizeRef={modalizeRef} />
-    </>
+    </> 
   );
 };
 
