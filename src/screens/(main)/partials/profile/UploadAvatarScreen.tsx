@@ -7,18 +7,24 @@ import { useAppDispatch } from '../../../../redux/store';
 import dimensions from '../../../../hooks/useSizing';
 import Button1 from '../../../../components/Buttons/Button1';
 import Spacer from '../../../../components/UI/Spacer';
-import { CameraIcon, UserIcon } from 'lucide-react-native';
+import { CameraIcon, ChevronLeft, UserIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { SaveFormat } from 'expo-image-manipulator';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { supabaseConn } from '../../../../services/db/supabaseClient';
+import { useSession } from '../../../../contexts/sessionContext';
 
 const UploadAvatarScreen = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
     const dispatch = useAppDispatch();
     const isDark = useSelector((state: any) => state.theme.isDark);
     const colors = getThemeStyles(isDark);
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const { session } = useSession();
 
     const pickImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -97,13 +103,77 @@ const UploadAvatarScreen = () => {
         }
     };
 
+    const uploadImage = async () => {
+        try {
+            if (imageUri == null) {
+                return;
+            }
+            if (!session?.user?.id) throw new Error("No user ID");
+
+            const accessToken = session.access_token;
+
+            setLoading(true);
+
+            const fileExt = imageUri.split('.').pop() || 'jpg';
+            const fileName = `user_${session.user.id}.${fileExt}`;
+            const filePath = `${session.user.id}/${fileName}`;
+
+            const base64 = await FileSystem.readAsStringAsync(imageUri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            const arrayBuffer = new Uint8Array(
+                atob(base64)
+                    .split('')
+                    .map(char => char.charCodeAt(0))
+            ).buffer;
+
+            const { error: uploadError } = await supabaseConn.storage
+                .from('useravatars')
+                .upload(filePath, arrayBuffer, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    contentType: `image/${fileExt}`,
+                    upsert: true,
+                    cacheControl: '3600',
+                });
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabaseConn.storage.from('useravatars').getPublicUrl(filePath);
+            const photoUrl = `${data.publicUrl}?t=${Date.now()}`;
+
+            const { error: updateError } = await supabaseConn.auth.updateUser({
+                data: { avatar_url: photoUrl },
+            });
+
+            if (updateError) throw updateError;
+
+            navigation.goBack();
+
+            alert("Profile picture updated successfully!");
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("There was an error updating your profile picture.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={styles.topContainer}>
-                <Text style={[styles.title, { color: colors.text }]}>Choose a Profile Picture</Text>
+                <Spacer height={dimensions.screenHeight * 0.01} />
+                <View style={{ justifyContent: 'flex-start', width: dimensions.screenWidth * 0.9 }}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <ChevronLeft size={dimensions.screenSize * 0.027} color="#000" />
+                    </TouchableOpacity>
+                </View>
+                <Spacer height={dimensions.screenHeight * 0.02} />
+                <Text style={[styles.title, { color: colors.text }]}>{"Choose a\nProfile Picture"}</Text>
                 <Spacer height={dimensions.screenHeight * 0.03} />
-
                 <TouchableOpacity onPress={pickImage} style={styles.imageMainCont}>
                     {imageUri ? (
                         <Image source={{ uri: imageUri }} style={styles.profileImage} />
@@ -124,7 +194,7 @@ const UploadAvatarScreen = () => {
             </View>
 
             <View style={styles.bottomContainer}>
-                <Button1 isLoading={isLoading} title="Upload Profile" onPress={imageUri ? () => { } : null} />
+                <Button1 isLoading={isLoading} title="Upload Profile" onPress={imageUri ? () => uploadImage() : null} />
             </View>
         </SafeAreaView>
     );
@@ -139,7 +209,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: dimensions.screenWidth * 0.06,
     },
     topContainer: {
-        marginTop: dimensions.screenHeight * 0.05,
         justifyContent: 'center',
         alignItems: 'center',
     },

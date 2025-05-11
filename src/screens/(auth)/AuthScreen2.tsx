@@ -23,7 +23,7 @@ import { useAppDispatch } from '../../redux/store';
 import { getThemeStyles } from '../../hooks/useThemes';
 import { AuthStackParamList } from './_layout';
 import { ChevronLeft } from 'lucide-react-native';
-import { handleLogin, handleRegister } from '../../controllers/authController';
+import { authController } from '../../controllers/authController';
 
 const AuthScreen2 = () => {
   type AuthScreen2RouteProp = RouteProp<AuthStackParamList, 'AuthScreen2'>;
@@ -209,10 +209,10 @@ const AuthScreen2 = () => {
                     setLoading(true);
 
                     if (hasAccount) {
-                      const result = await handleLogin(dispatch, username, password);
+                      const result = await authController.signIn(username, password);
                       console.log('Login success:', result);
                     } else {
-                      const result = await handleRegister(dispatch, username, password);
+                      const result = await authController.signUp(username, password);
                       console.log('Registration success:', result);
                     }
 

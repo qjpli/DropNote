@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainLayout from './screens/(main)/_layout';
@@ -14,24 +14,29 @@ const Stack = createNativeStackNavigator();
 
 const AppLayout = () => {
   const { session } = useSession();
+  const [isInitialized, setInitialized] = useState<boolean>(false);
   const modalizeRef = useRef<Modalize>(null);
 
-  useEffect(() => {
-    if (session?.user) {
-      const avatarUrl = session.user.user_metadata?.avatar_url;
-      if (!avatarUrl) {
-        modalizeRef.current?.open();
+  useEffect(() => { 
+    if (!isInitialized) {
+      if (session?.user) {
+        const avatarUrl = session.user.user_metadata?.avatar_url;
+        if (!avatarUrl) {
+          modalizeRef.current?.open();
+        }
+
+        setInitialized(true);
       }
     }
   }, [session]);
 
-  return ( 
-    <> 
+  return (
+    <>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {session?.user ? ( 
+          {session?.user ? (
             <Stack.Screen name="Main" component={MainLayout} />
-          ) : ( 
+          ) : (
             <>
               <Stack.Screen name="Auth" component={AuthLayout} />
               <Stack.Screen name="Onboarding" component={OnboardingLayout} />
@@ -40,7 +45,7 @@ const AppLayout = () => {
         </Stack.Navigator>
         <ProfileAvatarModal modalizeRef={modalizeRef} />
       </NavigationContainer>
-    </> 
+    </>
   );
 };
 

@@ -68,7 +68,8 @@ const styles = StyleSheet.create({
     },
     description: {
         marginBottom: 20,
-        fontSize: dimensions.screenSize * 0.012,
+        fontSize: dimensions.screenSize * 0.0115,
+        lineHeight: dimensions.screenHeight * 0.026,
         textAlign: 'center',
         fontFamily: 'Montserrat',
     }
