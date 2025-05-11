@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { getThemeStyles } from '../../../../hooks/useThemes';
@@ -25,6 +25,7 @@ const UploadAvatarScreen = () => {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [isLoading, setLoading] = useState<boolean>(false);
     const { session } = useSession();
+    const avatarUrl = session?.user.user_metadata['avatar_url'];
 
     const pickImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -172,11 +173,16 @@ const UploadAvatarScreen = () => {
                     </TouchableOpacity>
                 </View>
                 <Spacer height={dimensions.screenHeight * 0.02} />
-                <Text style={[styles.title, { color: colors.text }]}>{"Choose a\nProfile Picture"}</Text>
+                <Text style={[styles.title, { color: colors.text }]}>{session?.user.user_metadata['avatar_url'] ? "Change your\nProfile Picture" : "Choose a\nProfile Picture"}</Text>
                 <Spacer height={dimensions.screenHeight * 0.03} />
                 <TouchableOpacity onPress={pickImage} style={styles.imageMainCont}>
                     {imageUri ? (
                         <Image source={{ uri: imageUri }} style={styles.profileImage} />
+                    ) : session?.user.user_metadata['avatar_url'] ? (
+                        <View style={[styles.imageCont, { backgroundColor: colors.shadow, position: 'relative', alignItems: 'center', justifyContent: 'center' }]}>
+                            <ActivityIndicator size="large" style={{ position: 'absolute' }} />
+                            <Image source={{ uri: session?.user.user_metadata['avatar_url'] }} style={[styles.profileImage, { position: 'absolute' }]} />
+                        </View>
                     ) : (
                         <View style={[styles.imageCont, { backgroundColor: colors.shadow }]}>
                             <UserIcon size={dimensions.screenSize * 0.04} color={colors.trueColor} />
@@ -194,7 +200,7 @@ const UploadAvatarScreen = () => {
             </View>
 
             <View style={styles.bottomContainer}>
-                <Button1 isLoading={isLoading} title="Upload Profile" onPress={imageUri ? () => uploadImage() : null} />
+                <Button1 isLoading={isLoading} title={session?.user.user_metadata['avatar_url'] ? "Save" : "Upload Profile"} onPress={imageUri ? () => uploadImage() : null} />
             </View>
         </SafeAreaView>
     );

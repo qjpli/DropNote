@@ -1,4 +1,4 @@
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect } from 'react';
 import { Modalize } from 'react-native-modalize';
 import dimensions from '../../hooks/useSizing';
@@ -47,7 +47,11 @@ const ProfileAvatarModal: React.FC<ProfileAvatarModalProps> = ({ modalizeRef }) 
                             navigation.navigate('UploadAvatarScreen');
                         }, 200);
                     }} />
-                    <Button1 title='Skip' onPress={() => modalizeRef.current?.close()} backgroundColor={colors.shadow} />
+                    <Spacer height={dimensions.screenHeight * 0.015} />
+                    <TouchableOpacity onPress={() => modalizeRef.current?.close()}>
+                        <Text style={styles.textSkip}>Maybe Later</Text>
+                    </TouchableOpacity>
+                    <Spacer height={dimensions.screenHeight * 0.015} />
                 </View>
             </View>
         </Modalize>
@@ -72,6 +76,13 @@ const styles = StyleSheet.create({
         lineHeight: dimensions.screenHeight * 0.026,
         textAlign: 'center',
         fontFamily: 'Montserrat',
+    },
+    textSkip: {
+        fontFamily: 'Montserrat',
+        fontSize: dimensions.screenSize * 0.012,
+        color: '#808080',
+        fontWeight: 400,
+        textAlign: 'center'
     }
 });
 
