@@ -6,7 +6,7 @@ import { getThemeStyles } from '../../../hooks/useThemes'
 
 type Props = {}
 
-const NotesScreen = (props: Props) => {
+const ProfileScreen = (props: Props) => {
   const isDark = useSelector((state: any) => state.theme.isDark);
   const colors = getThemeStyles(isDark);
 
@@ -17,7 +17,7 @@ const NotesScreen = (props: Props) => {
   )
 } 
 
-export default NotesScreen
+export default ProfileScreen
 
 const styles = StyleSheet.create({
   container: {

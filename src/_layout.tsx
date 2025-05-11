@@ -18,8 +18,6 @@ const AppLayout = () => {
   const modalizeRef = useRef<Modalize>(null);
 
   useEffect(() => { 
-    modalizeRef.current?.open();
- 
     if (!isInitialized) {
       if (session?.user) {
         const avatarUrl = session.user.user_metadata?.avatar_url;
