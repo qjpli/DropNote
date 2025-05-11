@@ -6,7 +6,7 @@ import { getThemeStyles } from '../../../hooks/useThemes'
 import dimensions from '../../../hooks/useSizing'
 import Spacer from '../../../components/UI/Spacer'
 import { useSession } from '../../../contexts/sessionContext'
-import { Edit2Icon, NotepadText } from 'lucide-react-native'
+import { Edit2Icon, NotepadText, UserIcon } from 'lucide-react-native'
 import { ParamListBase, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -27,7 +27,6 @@ const HomeScreen = (props: Props) => {
     const defaultType = StyleSheet.create({
       container: {
         position: 'absolute',
-        // backgroundColor: 'green',
         left: 0,
         bottom: 0,
         right: 0,
@@ -84,7 +83,13 @@ const HomeScreen = (props: Props) => {
         </SafeAreaView>
         <View style={[styles.floatingNotes, { backgroundColor: 'white' }]}>
           <TouchableOpacity onPress={() => navigation.navigate('UploadAvatarScreen')}>
-            <Image source={{ uri: session?.user.user_metadata['avatar_url'] }} style={[styles.userImage, { borderColor: colors.primary }]} />
+            {
+              session?.user.user_metadata['avatar_url'] ?
+                <Image source={{ uri: session?.user.user_metadata['avatar_url'] }} style={[styles.userImage, { borderColor: colors.primary, backgroundColor: colors.shadow }]} /> :
+                <View style={[styles.userImage, { borderColor: colors.primary, backgroundColor: colors.trueColor, alignItems: 'center', justifyContent: 'center' }]}>
+                  <UserIcon size={dimensions.screenSize * 0.022} color={colors.primary} />
+                </View>
+            }
           </TouchableOpacity>
           <View style={{ marginTop: dimensions.screenHeight * 0.005, flex: 1 }}>
             <Text style={[styles.textInput, { fontWeight: 400, fontSize: dimensions.screenSize * 0.012, color: colors.textLight }]}>Say anything you want</Text>
@@ -126,7 +131,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingBottom: dimensions.screenHeight * 0.035
-    // alignItems: 'center'
   },
   floatingNotes: {
     position: 'absolute',
