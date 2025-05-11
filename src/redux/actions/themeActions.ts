@@ -1,7 +1,6 @@
-// src/redux/actions/themeActions.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { toggleTheme } from '../slices/themeSlice';
-import { AppDispatch, RootState } from '../store'; // Import the AppDispatch type
+import { AppDispatch, RootState } from '../store'; 
 
 export const loadTheme = () => async (dispatch: AppDispatch) => {
   try {

@@ -10,6 +10,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Animated,
+  TouchableOpacity,
 } from 'react-native';
 import dimensions from '../../hooks/useSizing';
 import CustomTextInput1 from '../../components/TextInputs/CustomTextInput1';
@@ -21,6 +22,8 @@ import { loadTheme, persistTheme, toggleAndPersistTheme } from '../../redux/acti
 import { useAppDispatch } from '../../redux/store';
 import { getThemeStyles } from '../../hooks/useThemes';
 import { AuthStackParamList } from './_layout';
+import { ChevronLeft } from 'lucide-react-native';
+import { handleLogin, handleRegister } from '../../controllers/authController';
 
 const AuthScreen2 = () => {
   type AuthScreen2RouteProp = RouteProp<AuthStackParamList, 'AuthScreen2'>;
@@ -183,22 +186,51 @@ const AuthScreen2 = () => {
             backgroundColor={colors.primary}
             textColor="white"
             isLoading={isLoading}
+            // onPress={
+            //   passwordStrength == 5
+            //     ? () => {
+            //       Keyboard.dismiss();
+            //       setLoading(true);
+
+            //       setTimeout(function () {
+            //         setLoading(false);
+            //         // handleToggleTheme();
+
+            //         console.log(username);
+            //       }, 0);
+            //     }
+            //     : null
+            // }
             onPress={
-              passwordStrength == 5
-                ? () => {
-                  Keyboard.dismiss();
-                  setLoading(true);
+              passwordStrength === 5
+                ? async () => {
+                  try {
+                    Keyboard.dismiss();
+                    setLoading(true);
 
-                  setTimeout(function () {
+                    if (hasAccount) {
+                      const result = await handleLogin(dispatch, username, password);
+                      console.log('Login success:', result);
+                    } else {
+                      const result = await handleRegister(dispatch, username, password);
+                      console.log('Registration success:', result);
+                    }
+
                     setLoading(false);
-                    // handleToggleTheme();
-
-                    console.log(username);
-                  }, 0);
+                  } catch (err) {
+                    setLoading(false);
+                    console.error('Auth error:', err);
+                  }
                 }
                 : null
             }
+
           />
+        </View>
+        <View style={styles.floatingTop}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ChevronLeft size={dimensions.screenSize * 0.027} color="#000" />
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -255,9 +287,14 @@ const styles = StyleSheet.create({
     height: dimensions.screenHeight * 0.003,
     borderRadius: 5,
   },
+  floatingTop: {
+    position: 'absolute',
+    top: dimensions.screenHeight * 0.08,
+    left: dimensions.screenWidth * 0.03
+  },
   floatingBottom: {
     bottom: dimensions.screenHeight * 0.035,
-    paddingHorizontal: dimensions.screenWidth * 0.05,
+    paddingHorizontal: dimensions.screenWidth * 0.06,
     backgroundColor: '',
   },
 });

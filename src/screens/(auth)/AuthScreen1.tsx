@@ -8,7 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Keyboard,
-  TouchableWithoutFeedback, 
+  TouchableWithoutFeedback,
 } from 'react-native';
 import dimensions from '../../hooks/useSizing';
 import CustomTextInput1 from '../../components/TextInputs/CustomTextInput1';
@@ -19,6 +19,7 @@ import { toggleTheme } from '../../redux/slices/themeSlice';
 import { loadTheme, persistTheme, toggleAndPersistTheme } from '../../redux/actions/themeActions';
 import { useAppDispatch } from '../../redux/store';
 import { getThemeStyles } from '../../hooks/useThemes';
+import { existsData } from '../../services/db/supabaseClient';
 
 
 const AuthScreen1 = () => {
@@ -45,7 +46,7 @@ const AuthScreen1 = () => {
       setUsername(text);
     }
   };
-   
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView behavior="padding" style={[styles.mainCont, { backgroundColor: colors.background }]}>
@@ -89,17 +90,29 @@ const AuthScreen1 = () => {
             isLoading={isLoading}
             onPress={
               username.trim().length > 2
-                ? () => {
+                ? async () => {
+                  Keyboard.dismiss();
+                  setLoading(true);
+                  try {
+                    const doesExist = await existsData('profiles', { username });
+                    setLoading(false);
 
+                    if (doesExist) {
+                      console.log('Username is already taken.');
 
-                    Keyboard.dismiss();
-                    setLoading(true);
-
-                    setTimeout(function () {
-                      setLoading(false); 
                       navigation.navigate('AuthScreen2', { username, process: 'sign-in' });
-                    }, 0); 
+                    } else {
+
+                      console.log('Username is not taken.');
+                      navigation.navigate('AuthScreen2', { username, process: 'sign-up' });
+                    }
+                  } catch (error) {
+                    console.error('Error checking username:', error);
+                    alert('Something went wrong. Please try again.');
+                  } finally {
+                    setLoading(false);
                   }
+                }
                 : null
             }
           />
