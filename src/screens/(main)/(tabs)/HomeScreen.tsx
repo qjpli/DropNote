@@ -153,7 +153,10 @@ const HomeScreen = (props: Props) => {
           autoPlay={false}
           data={themes} // Use the themes as data for the carousel
           style={[styles.floatingNotesCarousel]}
-          onSnapToItem={(index) => setActiveTheme(themes[index])}
+          onProgressChange={(offsetProgress, absoluteProgress) => {
+            const activeIndex = Math.round(absoluteProgress) % themes.length;
+            setActiveTheme(themes[activeIndex]);
+          }}
           renderItem={({ item }) => (
             <View style={[styles.floatingNotes, { backgroundColor: colors.trueColor }]}>
               <TouchableOpacity onPress={() => navigation.navigate('UploadAvatarScreen')}>
