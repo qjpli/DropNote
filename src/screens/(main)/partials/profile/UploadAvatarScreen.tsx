@@ -34,14 +34,14 @@ const UploadAvatarScreen = () => {
             return;
         }
 
-        setLoading(true);
-
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.8,
         });
+
+        setLoading(true);
 
         console.log('ImagePicker Result: ', result);
 
@@ -101,6 +101,7 @@ const UploadAvatarScreen = () => {
             }
         } else {
             console.log('Image picking was canceled');
+            setLoading(false);
         }
     };
 

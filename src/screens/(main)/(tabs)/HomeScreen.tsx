@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, View, Image, TouchableOpacity, Animated, Easing } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getThemeStyles } from '../../../hooks/useThemes'
 import dimensions from '../../../hooks/useSizing'
 import Spacer from '../../../components/UI/Spacer'
@@ -9,129 +9,142 @@ import { useSession } from '../../../contexts/sessionContext'
 import { Edit2Icon, NotepadText, UserIcon } from 'lucide-react-native'
 import { ParamListBase, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import Carousel from 'react-native-reanimated-carousel'
 
 // Default Type Icons
 import { NotebookIcon, PinIcon, MessageCircleQuestion } from 'lucide-react-native'
 import { shade } from 'polished'
-import Carousel from 'react-native-reanimated-carousel'
 
-type Props = {}
+// Christmas Type Icons
+import { TreePalm, GiftIcon, SnowflakeIcon } from 'lucide-react-native'
+import { icons } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import { AppDispatch, RootState } from '../../../redux/store';
+import { NoteTheme } from '../../../types/NoteThemeType'
+import { loadIcon } from '../../../utils/LoadIcons'
+import { loadUserNoteDetailsThunk } from '../../../redux/actions/noteDetailsActions'
 
-type NoteTheme = {
-  id: string;
-  title: string;
-  desc?: string;
-  color: string;
-  icons: any;
-}
-
-const HomeScreen = (props: Props) => {
+const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
   const isDark = useSelector((state: any) => state.theme.isDark);
   const colors = getThemeStyles(isDark);
   const { session } = useSession();
+  const themes = useSelector((state: RootState) => state.noteTheme.noteThemes);
+  const [activeTheme, setActiveTheme] = useState<NoteTheme | null>(themes.length > 0 ? themes[0] : null);
+  const themeColor = useRef(new Animated.Value(0)).current;
+  const iconOpacity = useRef(new Animated.Value(0)).current;
+  const userId = session?.user?.id;
+  const dispatch = useDispatch<AppDispatch>();
 
-  const renderDefault = () => {
+  const noteDetails = useSelector((state: RootState) => state.noteDetails[userId ?? ''] || {});
 
-    const defaultType = StyleSheet.create({
-      container: {
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        right: 0,
-        top: 0
-      },
-      firstIcon: {
-        position: 'absolute',
-        bottom: dimensions.screenHeight * 0.02,
-        right: dimensions.screenWidth * 0.06,
-        transform: [{ rotate: '10deg' }],
-      },
-      secondIcon: {
-        position: 'absolute',
-        bottom: dimensions.screenHeight * 0.035,
-        left: dimensions.screenWidth * 0.3,
-        transform: [{ rotate: '-10deg' }],
-      },
-      thirdIcon: {
-        position: 'absolute',
-        bottom: dimensions.screenHeight * 0.05,
-        left: dimensions.screenWidth * 0.55,
-        transform: [{ rotate: '-20deg' }],
-      }
-    });
-
-    return (
-      <View style={defaultType.container}>
-        <NotebookIcon size={dimensions.screenSize * 0.05} color={shade(0.2, colors.primary)} style={defaultType.firstIcon} />
-        <MessageCircleQuestion size={dimensions.screenSize * 0.055} color={shade(0.2, colors.primary)} style={defaultType.secondIcon} />
-        <PinIcon size={dimensions.screenSize * 0.05} color={shade(0.2, colors.primary)} style={defaultType.thirdIcon} />
-      </View>
-    )
-  }
-
-  const renderChristmas = () => {
-    const defaultType = StyleSheet.create({
-      container: {
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        right: 0,
-        top: 0
-      },
-      firstIcon: {
-        position: 'absolute',
-        bottom: dimensions.screenHeight * 0.02,
-        right: dimensions.screenWidth * 0.06,
-        transform: [{ rotate: '10deg' }],
-      },
-      secondIcon: {
-        position: 'absolute',
-        bottom: dimensions.screenHeight * 0.035,
-        left: dimensions.screenWidth * 0.3,
-        transform: [{ rotate: '-10deg' }],
-      },
-      thirdIcon: {
-        position: 'absolute',
-        bottom: dimensions.screenHeight * 0.05,
-        left: dimensions.screenWidth * 0.55,
-        transform: [{ rotate: '-20deg' }],
-      }
-    });
-
-    return (
-      <View style={defaultType.container}>
-        <NotebookIcon size={dimensions.screenSize * 0.05} color={shade(0.2, '#165B33')} style={defaultType.firstIcon} />
-        <MessageCircleQuestion size={dimensions.screenSize * 0.055} color={shade(0.2, '#165B33')} style={defaultType.secondIcon} />
-        <PinIcon size={dimensions.screenSize * 0.05} color={shade(0.2, '#165B33')} style={defaultType.thirdIcon} />
-      </View>
-    )
-  }
-
-  const [themes, setThemes] = useState<NoteTheme[]>([
-    {
-      id: 'q&a',
-      title: 'Q&A',
-      color: colors.primary,
-      icons: renderDefault()
-    },
-    {
-      id: 'christmas',
-      title: 'Christmas',
-      color: '#165B33',
-      icons: renderChristmas()
+  useEffect(() => {
+    if (userId) {
+      dispatch(loadUserNoteDetailsThunk(userId ?? ''));
     }
-  ])
+  }, [userId]);
 
-  const [activeTheme, setActiveTheme] = useState<NoteTheme>(themes[0]);
+  const renderThemeIcons = (theme: NoteTheme) => {
+    const styles = StyleSheet.create({
+      container: {
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        right: 0,
+        top: 0,
+      },
+      firstIcon: {
+        position: 'absolute',
+        bottom: dimensions.screenHeight * 0.02,
+        right: dimensions.screenWidth * 0.06,
+        transform: [{ rotate: '10deg' }],
+      },
+      secondIcon: {
+        position: 'absolute',
+        bottom: dimensions.screenHeight * 0.035,
+        left: dimensions.screenWidth * 0.3,
+        transform: [{ rotate: '-10deg' }],
+      },
+      thirdIcon: {
+        position: 'absolute',
+        bottom: dimensions.screenHeight * 0.05,
+        left: dimensions.screenWidth * 0.55,
+        transform: [{ rotate: theme.id === 'christmas' ? '-40deg' : '-20deg' }],
+      },
+    });
 
+    return (
+      <View style={styles.container}>
+        {theme.icons.map((iconName, index) => {
+          const IconComponent = loadIcon(iconName);
+          if (!IconComponent) return null;
+
+          const style =
+            index === 0 ? styles.firstIcon :
+              index === 1 ? styles.secondIcon :
+                styles.thirdIcon;
+
+          return (
+            <IconComponent
+              key={index}
+              size={dimensions.screenSize * 0.05}
+              color={shade(0.2, theme.color)}
+              style={style}
+            />
+          );
+        })}
+      </View>
+
+    );
+  };
+
+  const onThemeChange = (index: number) => {
+    const newTheme = themes[index];
+    setActiveTheme(newTheme);
+
+    iconOpacity.setValue(0);
+
+    Animated.timing(themeColor, {
+      toValue: index,
+      duration: 110,
+      easing: Easing.inOut(Easing.ease),
+      useNativeDriver: false,
+    }).start(() => {
+      Animated.sequence([
+        Animated.delay(0),
+        Animated.timing(iconOpacity, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
+
+  const interpolatedBackgroundColor = themes.length > 1
+    ? themeColor.interpolate({
+      inputRange: themes.map((_, i) => i),
+      outputRange: themes.map(theme => theme.color),
+    })
+    : themes.length === 1
+      ? themes[0].color
+      : colors.background;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.notesContainer]}>
-        <SafeAreaView edges={['top',]} style={[styles.notesTopBackground, { backgroundColor: activeTheme?.color }]}>
+        <Animated.View style={[styles.notesTopBackground, { backgroundColor: interpolatedBackgroundColor }]}>
           <View style={[styles.notesContBG, {}]}>
-            {activeTheme?.icons}
+            <Animated.View style={{
+              opacity: iconOpacity,
+              position: 'absolute',
+              left: 0,
+              bottom: 0,
+              right: 0,
+              top: 0
+            }}>
+              {activeTheme && renderThemeIcons(activeTheme)}
+            </Animated.View>
             <View>
               <Spacer height={dimensions.screenHeight * 0.01} />
               <Text style={styles.textNoteTopHeader}>Note Type</Text>
@@ -145,42 +158,77 @@ const HomeScreen = (props: Props) => {
               </View>
             </View>
           </View>
-        </SafeAreaView>
+        </Animated.View>
         <Carousel
           loop
           width={dimensions.screenWidth}
           height={dimensions.screenHeight * 0.15}
           autoPlay={false}
-          data={themes} // Use the themes as data for the carousel
+          data={themes}
           style={[styles.floatingNotesCarousel]}
           onProgressChange={(offsetProgress, absoluteProgress) => {
             const activeIndex = Math.round(absoluteProgress) % themes.length;
+            onThemeChange(activeIndex);
             setActiveTheme(themes[activeIndex]);
           }}
-          renderItem={({ item }) => (
-            <View style={[styles.floatingNotes, { backgroundColor: colors.trueColor }]}>
-              <TouchableOpacity onPress={() => navigation.navigate('UploadAvatarScreen')}>
-                {
-                  session?.user.user_metadata['avatar_url'] ?
-                    <Image source={{ uri: session?.user.user_metadata['avatar_url'] }} style={[styles.userImage, { borderColor: item.color, backgroundColor: colors.shadow }]} /> :
-                    <View style={[styles.userImage, { borderColor: colors.primary, backgroundColor: colors.trueColor, alignItems: 'center', justifyContent: 'center' }]}>
-                      <UserIcon size={dimensions.screenSize * 0.022} color={colors.primary} />
-                    </View>
-                }
-              </TouchableOpacity>
-              <View style={{ marginTop: dimensions.screenHeight * 0.005, flex: 1 }}>
-                <Text style={[styles.textInput, { fontWeight: 400, fontSize: dimensions.screenSize * 0.012, color: colors.textLight }]}>Say anything you want</Text>
-                <Spacer height={dimensions.screenHeight * 0.007} />
-                <Text style={styles.textInput}>Hey, ask me something!</Text>
-              </View>
-              <View style={{ justifyContent: 'flex-end' }}>
-                <View style={[styles.editNote, { backgroundColor: item.color }]}>
-                  <Edit2Icon size={dimensions.screenSize * 0.015} color="#fff" />
+          renderItem={({ item }) => {
+            const userNoteForTheme = noteDetails[item.id] || 'Hey, ask me something!';
+
+            return (
+              <View style={[styles.floatingNotes, { backgroundColor: colors.trueColor }]}>
+                <TouchableOpacity onPress={() => navigation.navigate('UploadAvatarScreen')}>
+                  {
+                    session?.user.user_metadata['avatar_url'] ? (
+                      <Image
+                        source={{ uri: session?.user.user_metadata['avatar_url'] }}
+                        style={[styles.userImage, { borderColor: item.color, backgroundColor: colors.shadow }]}
+                      />
+                    ) : (
+                      <View style={[styles.userImage, { borderColor: colors.primary, backgroundColor: colors.trueColor, alignItems: 'center', justifyContent: 'center' }]}>
+                        <UserIcon size={dimensions.screenSize * 0.022} color={colors.primary} />
+                      </View>
+                    )
+                  }
+                </TouchableOpacity>
+                <View style={{ marginTop: dimensions.screenHeight * 0.005, flex: 1 }}>
+                  <Text style={[styles.textInput, { fontWeight: 400, fontSize: dimensions.screenSize * 0.012, color: colors.textLight }]}>
+                    Say anything you want
+                  </Text>
+                  <Spacer height={dimensions.screenHeight * 0.007} />
+                  <Text style={styles.textInput}>
+                    {userNoteForTheme}
+                  </Text>
+                </View>
+                <View style={{ justifyContent: 'flex-end' }}>
+                  <TouchableOpacity
+                    style={[styles.editNote, { backgroundColor: item.color }]}
+                    onPress={() => navigation.navigate('EditNoteMessage', { theme: item, noteMessage: userNoteForTheme })}
+                  >
+                    <Edit2Icon size={dimensions.screenSize * 0.015} color="#fff" />
+                  </TouchableOpacity>
                 </View>
               </View>
-            </View>
-          )}
+            );
+          }}
         />
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: dimensions.screenHeight * 0.02 }}>
+        {activeTheme && themes.map((_, index) => (
+          <View
+            key={index}
+            style={{
+              width: dimensions.screenSize * 0.006,
+              height: dimensions.screenSize * 0.006,
+              borderRadius: 100,
+              marginHorizontal: dimensions.screenWidth * 0.01,
+              backgroundColor: index === themes.indexOf(activeTheme) ? activeTheme.color : colors.shadow,
+              opacity: index === themes.indexOf(activeTheme) ? 1 : 0.4,
+            }}
+          />
+        ))}
+      </View>
+      <View>
+
       </View>
     </View>
   )
@@ -195,9 +243,9 @@ const styles = StyleSheet.create({
   notesContainer: {
     position: 'relative',
     paddingBottom: dimensions.screenHeight * 0.13,
-    // backgroundColor: 'red'
   },
   notesTopBackground: {
+    paddingTop: dimensions.screenHeight * 0.06,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },

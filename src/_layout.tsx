@@ -7,31 +7,45 @@ import OnboardingLayout from './screens/(onboarding)/_layout';
 import { useSession } from './contexts/sessionContext';
 import ProfileAvatarModal from './components/UI/ProfileAvatarModal';
 import { Modalize } from 'react-native-modalize';
-import { loadTheme } from './redux/actions/themeActions';
 import { useAppDispatch } from './redux/store';
+import { initializeAppThunk } from './redux/actions/appInitializerActions';
+import * as SplashScreen from 'expo-splash-screen';
 
 const Stack = createNativeStackNavigator();
 
 const AppLayout = () => {
   const { session } = useSession();
-  const [isInitialized, setInitialized] = useState<boolean>(false);
+  const [isAppReady, setAppReady] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
   const modalizeRef = useRef<Modalize>(null);
 
-  useEffect(() => { 
-    if (!isInitialized) {
-      if (session?.user) {
-        const avatarUrl = session.user.user_metadata?.avatar_url;
-        if (!avatarUrl) {
-          modalizeRef.current?.open();
-        }
+  useEffect(() => {
+    const initApp = async () => {
+      try {
+        await SplashScreen.preventAutoHideAsync();
 
-        setInitialized(true);
+        await dispatch(initializeAppThunk()).unwrap();
+
+        setAppReady(true);
+
+        await SplashScreen.hideAsync();
+
+        console.log('Done Loading');
+      } catch (error) {
+        console.error('App initialization failed:', error);
+        await SplashScreen.hideAsync();
       }
-    }
-  }, [session]);
+    };
+
+    initApp();
+  }, [dispatch]);
+
+  if (!isAppReady) {
+    return null; 
+  }
 
   return (
-    <>  
+    <>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {session?.user ? (
