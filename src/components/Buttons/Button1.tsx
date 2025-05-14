@@ -4,9 +4,7 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  GestureResponderEvent,
   ViewStyle,
-  TextStyle,
 } from 'react-native';
 import dimensions from '../../hooks/useSizing';
 
@@ -19,6 +17,13 @@ interface Button1Props {
   customStyle?: ViewStyle;
   flex?: number;
   isLoading?: boolean;
+  borderRadius?: number;
+  borderOnly?: boolean;
+  borderColor?: string;
+  retainColor?: boolean;
+  maxHeight?: number | null;
+  verticalPadding?: number;
+  suffixElement?: React.ReactNode;
 }
 
 const Button1: React.FC<Button1Props> = ({
@@ -30,37 +35,59 @@ const Button1: React.FC<Button1Props> = ({
   customStyle,
   flex,
   isLoading = false,
+  borderRadius = 15,
+  borderOnly = false,
+  borderColor = '#ef3a5d',
+  retainColor = false,
+  maxHeight = null,
+  verticalPadding,
+  suffixElement = null,
 }) => {
   const isDisabled = !onPress || isLoading;
-  const finalBackgroundColor = isDisabled ? '#d3d3d3' : backgroundColor;
+
+  const finalStyle: ViewStyle = {
+    backgroundColor: borderOnly
+      ? retainColor
+        ? backgroundColor
+        : 'transparent'
+      : isDisabled
+      ? '#d3d3d3'
+      : backgroundColor,
+    borderWidth: borderOnly ? 2 : 0,
+    borderColor: borderOnly ? borderColor : 'transparent',
+    borderRadius,
+    flex,
+    maxHeight: maxHeight ?? undefined,
+    paddingVertical: verticalPadding ?? dimensions.screenHeight * 0.02,
+    paddingHorizontal: dimensions.screenWidth * 0.03,
+    alignItems: 'center',
+    marginVertical: 5,
+    flexDirection: suffixElement ? 'row' : undefined,
+    justifyContent: suffixElement ? 'center' : undefined,
+  };
 
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: finalBackgroundColor, flex }, customStyle]}
+      style={[finalStyle, customStyle]}
       onPress={onPress ?? (() => {})}
       disabled={isDisabled}
     >
       {isLoading ? (
         <ActivityIndicator size="small" color={textColor} />
       ) : (
-        <Text style={[styles.buttonText, { color: textColor, fontSize }]}>{title}</Text>
+        <>
+          <Text style={[styles.buttonText, { color: textColor, fontSize }]}> {title}</Text>
+          {suffixElement}
+        </>
       )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    paddingVertical: dimensions.screenHeight * 0.02,
-    paddingHorizontal: dimensions.screenWidth * 0.03,
-    borderRadius: 15,
-    alignItems: 'center',
-    marginVertical: 5,
-  },
   buttonText: {
     fontFamily: 'Montserrat',
-    fontWeight: 600,
-    fontSize: dimensions.screenWidth * 0.045,
+    fontWeight: '600',
   },
 });
 

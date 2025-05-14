@@ -37,12 +37,12 @@ const TabNavigator = () => {
                     switch (route.name) {
                         case 'Home':
                             iconComponent = (
-                                <HomeIcon size={iconSize} color={focused ? colors.primary : '#888'} />
+                                <HomeIcon size={iconSize} color={focused ? colors.text : '#888'} />
                             );
                             break;
                         case 'Profile':
                             iconComponent = (
-                                <User2Icon size={iconSize} color={focused ? colors.primary : '#888'} />
+                                <User2Icon size={iconSize} color={focused ? colors.text : '#888'} />
                             );
                             break;
                         default:
@@ -54,7 +54,7 @@ const TabNavigator = () => {
                             {iconComponent}
                             <Text
                                 style={{
-                                    color: focused ? colors.primary : '#888',
+                                    color: focused ? colors.text : '#888',
                                     fontWeight: focused ? 600 : 400,
                                     fontSize: dimensions.screenSize * 0.01,
                                     marginTop: 2,

@@ -1,10 +1,14 @@
 export interface NoteTheme {
-  id: string; // UUID
+  id: string;   
   title: string;
-  desc?: string | null; // Nullable
+  desc?: string | null;  
   is_available: boolean;
-  icons: string[]; // Array of text
+  icons: string[];   
   color: string;
-  created_at: string; // ISO timestamp string
-  updated_at?: string | null; // Nullable
+  created_at: string;  
+  updated_at?: string | null;
+  features?: Array<{
+    icon: string;
+    description: string;
+  }> | null;
 }
